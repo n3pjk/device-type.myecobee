@@ -228,7 +228,7 @@ metadata {
 		multiAttributeTile(name:"summary", type: "lighting", width: 6, height: 4, canChangeIcon: false){
 			tileAttribute ("device.temperatureDisplay", key: "PRIMARY_CONTROL") {
 				attributeState ("temperature", label:'${currentValue}°', backgroundColor:"#44b621", 					
-					icon:"st.Weather.weather2", unit:"F"       
+					icon:"st.Home.home1", unit:"F"       
 				)
         	}
 			tileAttribute ("device.equipmentStatus", key: "SECONDARY_CONTROL") {
@@ -265,8 +265,8 @@ metadata {
 		}
 		standardTile("heatLevelUp", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
 			state "heatLevelUp", label:'Heat', action:"heatLevelUp", icon:"st.thermostat.thermostat-up"
-     		}
-     		valueTile("heatingSetpoint", "device.heatingSetpointDisplay", width: 3, height: 2, inactiveLabel: false) {
+		}
+		valueTile("heatingSetpoint", "device.heatingSetpointDisplay", width: 3, height: 2, inactiveLabel: false) {
 			state "heat", label:'${currentValue}°', unit:"F",
 			backgroundColors:[
 				[value: 0, color: "#153591"],
@@ -286,15 +286,15 @@ metadata {
 				[value: 96, color: "#bc2323"]
 			]                    
 		}
-		standardTile("heatLevelDown", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") 
+		standardTile("heatLevelDown", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
 			state "heatLevelDown", label:'Heat', action:"heatLevelDown", icon:"st.thermostat.thermostat-down"
 		}
 		standardTile("coolLevelUp", "device.coolingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
 			state "coolLevelUp", label:'Cool', action:"coolLevelUp", icon:"st.thermostat.thermostat-up"
-        	}
+		}
 		valueTile("coolingSetpoint", "device.coolingSetpointDisplay", width: 3, height: 2, inactiveLabel: false) {
 			state "cool", label:'${currentValue}°', unit:"F",
-         		backgroundColors:[
+			backgroundColors:[
 				[value: 0, color: "#153591"],
 				[value: 7, color: "#1e9cbb"],
 				[value: 15, color: "#90d2a7"],
@@ -315,7 +315,7 @@ metadata {
 		standardTile("coolLevelDown", "device.coolingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
 			state "coolLevelDown", label:'Cool', action:"coolLevelDown", icon:"st.thermostat.thermostat-down"
 		}
-       		standardTile("switchProgram", "device.programNameForUI", 
+		standardTile("switchProgram", "device.programNameForUI", 
 			inactiveLabel: false, width: 2, height: 2, decoration: "flat") {
 			state "Home", label: '${name}', action: "sleep", 
 				icon: "st.Home.home4"
@@ -334,6 +334,7 @@ metadata {
 			decoration: "flat", width: 2, height: 2,) {
 			state "default", label: 'Humidity\n${currentValue}%', unit: "humidity"
 		}
+        
 //		One could also use thermostatOperatingState as display value for equipStatus (in line with default ecobee device's status)
 //		However, it does not contain humidifier/dehumidifer/HRV/ERV/aux heat
 //		components' running states, just the basic thermostat states (heating, cooling, fan only).
@@ -429,11 +430,11 @@ metadata {
 		}
 		valueTile("weatherTempHigh", "device.weatherTempHigh", inactiveLabel: false,
 			width: 2, height: 2, decoration: "flat") {
-			state "default", label: 'FcastHigh\n${currentValue}°', unit: "C"
+			state "default", label: 'ForecastH\n${currentValue}°', unit: "C"
 		}
 		valueTile("weatherTempLow", "device.weatherTempLow", inactiveLabel: false,
 			width: 2, height: 2, decoration: "flat") {
-			state "default", label: 'FcastLow\n${currentValue}°', unit: "C"
+			state "default", label: 'ForecastL\n${currentValue}°', unit: "C"
 		}
 		valueTile("weatherPressure", "device.weatherPressure", inactiveLabel: false,
 			width: 2, height: 2, decoration: "flat") {
