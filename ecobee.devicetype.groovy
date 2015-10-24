@@ -223,34 +223,19 @@ metadata {
 	simulator {
 		// TODO: define status and reply messages here
 	}
-    
-    
 
-	tiles(scale: 2) {    
+	tiles(scale: 2) { 
 		multiAttributeTile(name:"summary", type: "lighting", width: 6, height: 4, canChangeIcon: false){
 			tileAttribute ("device.temperatureDisplay", key: "PRIMARY_CONTROL") {
 				attributeState ("temperature", label:'${currentValue}°', backgroundColor:"#44b621", 					
-					icon:"st.Weather.weather2",unit:"F"       
+					icon:"st.Weather.weather2", unit:"F"       
 				)
         	}
-            
 			tileAttribute ("device.equipmentStatus", key: "SECONDARY_CONTROL") {
 				attributeState "equipmentStatus", label:'${currentValue}'
 			}
 		}
     
-/*
-		multiAttributeTile(name:"summary", type: "lighting", width: 6, height: 4, canChangeIcon: true){
-			tileAttribute ("device.temperature", key: "PRIMARY_CONTROL") {
-				attributeState ("temperature", label:'${currentValue}°', backgroundColor:"#0A1E2C")
-        	}
-            
-			tileAttribute ("device.equipmentStatus", key: "SECONDARY_CONTROL") {
-				attributeState "equipmentStatus", label:'${currentValue}'
-        		
-			}
-		}
-*/
 		valueTile("name", "device.thermostatName", inactiveLabel: false, width: 2,
 			height: 2, decoration: "flat") {
 			state "default", label: '${currentValue}\n'
@@ -278,62 +263,59 @@ metadata {
 			state "on", label: '${name}', action: "thermostat.fanAuto", 
 				icon: "st.Appliances.appliances11"
 		}
-        standardTile("heatLevelUp", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
-            state "heatLevelUp", label:'Heat', action:"heatLevelUp", icon:"st.thermostat.thermostat-up"//, backgroundColor:"#F7C4BA"
-        }
-        valueTile("heatingSetpoint", "device.heatingSetpointDisplay", width: 3, height: 2, inactiveLabel: false) {
+		standardTile("heatLevelUp", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
+			state "heatLevelUp", label:'Heat', action:"heatLevelUp", icon:"st.thermostat.thermostat-up"
+     		}
+     		valueTile("heatingSetpoint", "device.heatingSetpointDisplay", width: 3, height: 2, inactiveLabel: false) {
 			state "heat", label:'${currentValue}°', unit:"F",
-            	backgroundColors:[
-					[value: 0, color: "#153591"],
-					[value: 7, color: "#1e9cbb"],
-					[value: 15, color: "#90d2a7"],
-					[value: 23, color: "#44b621"],
-					[value: 29, color: "#f1d801"],
-					[value: 33, color: "#d04e00"],
-					[value: 36, color: "#bc2323"],
-					// Fahrenheit Color Range
-					[value: 40, color: "#153591"],
-					[value: 44, color: "#1e9cbb"],
-					[value: 59, color: "#90d2a7"],
-					[value: 74, color: "#44b621"],
-					[value: 84, color: "#f1d801"],
-					[value: 92, color: "#d04e00"],
-					[value: 96, color: "#bc2323"]
+			backgroundColors:[
+				[value: 0, color: "#153591"],
+				[value: 7, color: "#1e9cbb"],
+				[value: 15, color: "#90d2a7"],
+				[value: 23, color: "#44b621"],
+				[value: 29, color: "#f1d801"],
+				[value: 33, color: "#d04e00"],
+				[value: 36, color: "#bc2323"],
+				// Fahrenheit Color Range
+				[value: 40, color: "#153591"],
+				[value: 44, color: "#1e9cbb"],
+				[value: 59, color: "#90d2a7"],
+				[value: 74, color: "#44b621"],
+				[value: 84, color: "#f1d801"],
+				[value: 92, color: "#d04e00"],
+				[value: 96, color: "#bc2323"]
 			]                    
 		}
-		standardTile("heatLevelDown", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
-            state "heatLevelDown", label:'Heat', action:"heatLevelDown", icon:"st.thermostat.thermostat-down"//, backgroundColor:"#F7C4BA"
-        }
-
-         //Cooling Set Point Controls
-        standardTile("coolLevelUp", "device.coolingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
-            state "coolLevelUp", label:'Cool', action:"coolLevelUp", icon:"st.thermostat.thermostat-up"//, backgroundColor:"#F7C4BA"
-        }
+		standardTile("heatLevelDown", "device.heatingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") 
+			state "heatLevelDown", label:'Heat', action:"heatLevelDown", icon:"st.thermostat.thermostat-down"
+		}
+		standardTile("coolLevelUp", "device.coolingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
+			state "coolLevelUp", label:'Cool', action:"coolLevelUp", icon:"st.thermostat.thermostat-up"
+        	}
 		valueTile("coolingSetpoint", "device.coolingSetpointDisplay", width: 3, height: 2, inactiveLabel: false) {
 			state "cool", label:'${currentValue}°', unit:"F",
-            	backgroundColors:[
-					[value: 0, color: "#153591"],
-					[value: 7, color: "#1e9cbb"],
-					[value: 15, color: "#90d2a7"],
-					[value: 23, color: "#44b621"],
-					[value: 29, color: "#f1d801"],
-					[value: 33, color: "#d04e00"],
-					[value: 36, color: "#bc2323"],
-					// Fahrenheit Color Range
-					[value: 40, color: "#153591"],
-					[value: 44, color: "#1e9cbb"],
-					[value: 59, color: "#90d2a7"],
-					[value: 74, color: "#44b621"],
-					[value: 84, color: "#f1d801"],
-					[value: 92, color: "#d04e00"],
-					[value: 96, color: "#bc2323"]
-				]
+         		backgroundColors:[
+				[value: 0, color: "#153591"],
+				[value: 7, color: "#1e9cbb"],
+				[value: 15, color: "#90d2a7"],
+				[value: 23, color: "#44b621"],
+				[value: 29, color: "#f1d801"],
+				[value: 33, color: "#d04e00"],
+				[value: 36, color: "#bc2323"],
+				// Fahrenheit Color Range
+				[value: 40, color: "#153591"],
+				[value: 44, color: "#1e9cbb"],
+				[value: 59, color: "#90d2a7"],
+				[value: 74, color: "#44b621"],
+				[value: 84, color: "#f1d801"],
+				[value: 92, color: "#d04e00"],
+				[value: 96, color: "#bc2323"]
+			]
 		}
 		standardTile("coolLevelDown", "device.coolingSetpoint", width: 3, height: 1, canChangeIcon: false, inactiveLabel: false, decoration: "flat") {
-            state "coolLevelDown", label:'Cool', action:"coolLevelDown", icon:"st.thermostat.thermostat-down"//, backgroundColor:"#F7C4BA"
-        }
-        
-		standardTile("switchProgram", "device.programNameForUI", 
+			state "coolLevelDown", label:'Cool', action:"coolLevelDown", icon:"st.thermostat.thermostat-down"
+		}
+       		standardTile("switchProgram", "device.programNameForUI", 
 			inactiveLabel: false, width: 2, height: 2, decoration: "flat") {
 			state "Home", label: '${name}', action: "sleep", 
 				icon: "st.Home.home4"
@@ -360,6 +342,7 @@ metadata {
 //			decoration: "flat", width: 3, height: 1) {
 //			state "default", label: '${currentValue}'
 //		}
+
 /*
 		valueTile("equipStatus", "device.equipmentStatus", inactiveLabel: false,
 			decoration: "flat", width: 6, height: 2) {
@@ -473,7 +456,7 @@ metadata {
 			decoration: "flat",width: 2, height: 2) {
 			state "default", action: "polling.poll", icon: "st.secondary.refresh"
 		}
-		main "status"
+		main "summary"
 		details("summary", "name", "groups", "mode",  "switchProgram", "resProgram", "fanMode",
  			"heatLevelUp", "coolLevelUp", "heatingSetpoint", "coolingSetpoint", "heatLevelDown", "coolLevelDown",
  			 "programEndTimeMsg", "alerts","weatherDateTime", "weatherConditions",
