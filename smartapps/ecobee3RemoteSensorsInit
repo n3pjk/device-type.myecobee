@@ -363,9 +363,9 @@ def takeAction() {
 		state.exceptionCount=state.exceptionCount+1    
 		log.error "takeAction>exception $e while trying to poll the device $d, exceptionCount= ${state?.exceptionCount}" 
 	}
-	if ((state?.exceptionCount>=MAX_EXCEPTION_COUNT) || ((exceptionCheck) && (exceptionCheck.contains("Unauthorized")))) {
+	if (state?.exceptionCount>=MAX_EXCEPTION_COUNT) {
 		// need to authenticate again    
-		msg="too many exceptions/errors or unauthorized exception, $exceptionCheck (${state?.exceptionCount} errors), you may need to re-authenticate at ecobee..." 
+		msg="too many exceptions/errors, $exceptionCheck (${state?.exceptionCount} errors), you may need to re-authenticate at ecobee..." 
 		send "ecobee3RemoteSensorInit> ${msg}"
 		log.error msg
 		return        
