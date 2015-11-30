@@ -348,7 +348,8 @@ def takeAction() {
 	def MAX_EXCEPTION_COUNT=50
 	String exceptionCheck, msg 
 	try {        
-		ecobee.getRemoteSensorUpdate()
+		log.trace "takeAction>about to call generateRemoteSensorEvents()"
+		ecobee.generateRemoteSensorEvents("", 'false')	
 		exceptionCheck= ecobee.currentVerboseTrace.toString()
 		if ((exceptionCheck) && ((exceptionCheck.contains("exception") || (exceptionCheck.contains("error")) && 
 			(!exceptionCheck.contains("Java.util.concurrent.TimeoutException"))))) {  
@@ -371,9 +372,6 @@ def takeAction() {
 		return        
 	}    
     
-	log.trace "takeAction>about to call generateRemoteSensorEvents()"
-	ecobee.generateRemoteSensorEvents("", 'false')
-	    
 	updateMotionSensors()
 	updateTempSensors()    
 	updateHumiditySensors()
