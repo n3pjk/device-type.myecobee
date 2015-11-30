@@ -3063,11 +3063,19 @@ void getRemoteSensorUpdate(thermostatId=settings.thermostatId) {
 			if (!statusCode) {
 				data?.thermostatList = resp.data.thermostatList
 				def thermostatName = data.thermostatList[0].name
-				if (settings.trace) {
-					sendEvent name: "verboseTrace", value:
-						"getRemoteSensorUpdate> thermostatId=${thermostatId},name=${thermostatName}"
-					log.debug "getRemoteSensorUpdate> thermostatId=${thermostatId},name=${thermostatName}"
-				}
+				if (data.thermostatList[0].remoteSensors) {
+					if (settings.trace) {
+						log.debug "getRemoteSensorUpdate>found remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+						sendEvent name: "verboseTrace", value:
+							"getRemoteSensorUpdate>found remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+					}                            
+				} else {
+					if (settings.trace) {
+						log.debug "getRemoteSensorUpdate>No remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+						sendEvent name: "verboseTrace", value:
+							"getRemoteSensorUpdate>No remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+					}
+				}        
 				sendEvent name: "verboseTrace", value:
 					"getRemoteSensorUpdate>done for ${thermostatId}"
 			} else {
