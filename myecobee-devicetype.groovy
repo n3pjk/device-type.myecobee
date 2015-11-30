@@ -2869,8 +2869,8 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 		}
 	} else {
 		thermostatId = determine_tstat_id(thermostatId)
-		getRemoteSensorUpdate(thermostatId)    
 	}
+	getRemoteSensorUpdate(thermostatId)    
 /* Reset all remote sensor data values */
 	def remoteData = []
 	def remoteTempData = ""
