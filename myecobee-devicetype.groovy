@@ -2858,7 +2858,7 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 	def minTemp=null
 	def minHum=null
     
-	if (thermostatId) {
+	if ((thermostatId!=null) && (thermostatId !="")) {
 		if (thermostatId.contains(",")) {
         
 			if (settings.trace) {
@@ -2867,10 +2867,10 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 			}                
 			return
 		}
-		getThermostatInfo(thermostatId)    
+	} else {
+		thermostatId = determine_tstat_id(thermostatId)
+		getRemoteSensorUpdate(thermostatId)    
 	}
-	thermostatId = determine_tstat_id(thermostatId)
-
 /* Reset all remote sensor data values */
 	def remoteData = []
 	def remoteTempData = ""
