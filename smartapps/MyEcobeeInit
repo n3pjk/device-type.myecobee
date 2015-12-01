@@ -39,7 +39,7 @@ def about() {
  	dynamicPage(name: "about", install: false, uninstall: true) {
  		section("About") {	
 			paragraph "My Ecobee Init, the smartapp that connects your Ecobee thermostat to SmartThings via cloud-to-cloud integration"
-			paragraph "Version 2.4\n" 
+			paragraph "Version 2.4.1\n" 
 			paragraph "If you like this smartapp, please support the developer via PayPal and click on the Paypal link below " 
 				href url: "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=yracine%40yahoo%2ecom&lc=US&item_name=Maisons%20ecomatiq&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest",
 					title:"Paypal donation..."
@@ -450,11 +450,17 @@ def takeAction() {
 			log.error "MyEcobeeInit>exception $e while trying to poll the device $d, exceptionCount= ${state?.exceptionCount}" 
 		}
 	}
-	if ((state?.exceptionCount>=MAX_EXCEPTION_COUNT) || ((exceptionCheck) && (exceptionCheck.contains("Unauthorized")))) {
+	if ((exceptionCheck) && (exceptionCheck.contains("Unauthorized"))) {
 		// need to authenticate again    
 		atomicState.authToken=null                    
 		state?.oauthTokenProvided=false
-		msg="too many exceptions/errors or unauthorized exception, $exceptionCheck (${state?.exceptionCount} errors), press on 'ecobee' and re-login..." 
+		msg="$exceptionCheck (${state?.exceptionCount} errors), press on 'ecobee' and re-login..." 
+		send "MyEcobeeInit> ${msg}"
+		log.error msg
+
+	}
+	if (state?.exceptionCount>=MAX_EXCEPTION_COUNT) {
+		msg="too many exceptions/errors, $exceptionCheck (${state?.exceptionCount} errors so far), you may need to press on 'ecobee' and re-login..." 
 		send "MyEcobeeInit> ${msg}"
 		log.error msg
 	}    
