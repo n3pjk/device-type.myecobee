@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.2.3
+ *  Version 3.2.4
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -2872,17 +2872,16 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 	} else {
 		thermostatId = determine_tstat_id(thermostatId)
 	}
-	def poll_interval=5   // set a 5 min. poll interval to avoid unecessary load on ecobee servers
+	def poll_interval=3   // set a 3 min. poll interval to avoid unecessary load on ecobee servers
 	def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
-	if ((state?.lastUpdateRemoteSensorTimestamp) && (state?.lastUpdateRemoteSensorTimestamp > time_check_for_poll)) {
+	if ((state?.lastPollTimestamp) && (state?.lastPollTimestamp > time_check_for_poll)) {
 		if (settings.trace) {
-			log.debug "generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastUpdateRemoteSensorTimestamp}), not refreshing data..."
+			log.debug "generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
 			sendEvent name: "verboseTrace", value:
-				"generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastUpdateRemoteSensorTimestamp (${state.lastUpdateRemoteSensorTimestamp}), not refreshing data..."
+				"generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
 		}
 		return
 	}
-	state.lastUpdateRemoteSensorTimestamp = now()
     
 	if (!getThermostatRevision("","")) {
     
