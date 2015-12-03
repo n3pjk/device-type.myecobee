@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.2.9
+ *  Version 3.3
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -3283,6 +3283,11 @@ private def refresh_tokens() {
 		sendEvent name: "verboseTrace", value:
 			"refresh_tokens>exception $e at " + method.uri
 		state.exceptionCount = state.exceptionCount +1     
+		state.lastPollTimestamp = now()  // Introduce a poll delay if there is an exception
+		// introduce a 2 second delay before re-attempting any other command                    
+		def cmd= []           
+		cmd << "delay 2000"                    
+		cmd            
 		return false
 	}
 	// determine token's expire time
@@ -3485,7 +3490,7 @@ private def isLoggedIn() {
 	return true
 }
 private def isTokenExpired() {
-	def buffer_time_expiration=5   // set a 5 min. buffer time before token expiration to avoid auth_err 
+	def buffer_time_expiration=15   // set a 15 min. buffer time before token expiration to avoid auth_err 
 	def time_check_for_exp = now() + (buffer_time_expiration * 60 * 1000);
 	if (settings.trace) {
 		log.debug "isTokenExpired> check expires_in: ${data.auth.authexptime} > time check for exp: ${time_check_for_exp}"
