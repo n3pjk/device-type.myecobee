@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.2.5
+ *  Version 3.2.6
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -1306,12 +1306,15 @@ private void doRequest(uri, args, type, success) {
 		log.error "doRequest> No route to host - check the URL " + params.uri
 		sendEvent name: "verboseTrace", value: "doRequest> No route to host ${params.uri}"
 		state.exceptionCount = state.exceptionCount +1     
+	}        
+/*        
 	} catch (e) {
-		log.debug "doRequest>exception $e for " + params.body
+		log.debug "doRequest>exception $e for " + params.uri
 		sendEvent name: "verboseTrace", value:
-			"doRequest>exception $e for " + params.body
+			"doRequest>exception $e for " + params.uri
 		state.exceptionCount = state.exceptionCount +1 
 	}
+*/    
 }
 
 // tstatType =managementSet or registered (no spaces).  
