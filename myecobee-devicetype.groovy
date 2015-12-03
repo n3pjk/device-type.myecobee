@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.2.4
+ *  Version 3.2.5
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -2882,6 +2882,7 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 		}
 		return
 	}
+	state.lastPollTimestamp = now()
     
 	if (!getThermostatRevision("","")) {
     
