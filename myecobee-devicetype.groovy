@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.2.7
+ *  Version 3.2.8
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -2857,9 +2857,10 @@ private float calculate_report_stats(component, startInterval, endInterval, type
 // getThermostatInfo() should be called prior to calling generateRemoteSensorEvents() method to get the latest data
 // thermostatId shall refer to a single thermostat to avoid processing too much data
 //	if no thermostatId is provided, it is defaulted to the current thermostatId 
-// postData may be 'true' or 'false', by default the latter
+// postData may be true or false, by default the latter
+// bypassThrottling may be true or false, by default the latter
 
-void generateRemoteSensorEvents(thermostatId,postData='false') {
+void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=false) {
 	def REMOTE_SENSOR_TYPE="ecobee3_remote_sensor"
 	def REMOTE_THERMOSTAT_TYPE="thermostat"
 	def REMOTE_SENSOR_OCCUPANCY='occupancy'
@@ -2873,8 +2874,6 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 	def minTemp=null
 	def minHum=null
     
-
-
 	if ((thermostatId!=null) && (thermostatId !="")) {
 		if (thermostatId.contains(",")) {
         
@@ -2884,29 +2883,32 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 			}                
 			return
 		}
-	} else {
-		thermostatId = determine_tstat_id(thermostatId)
-	}
-	def poll_interval=3   // set a 3 min. poll interval to avoid unecessary load on ecobee servers
-	def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
-	if ((state?.lastPollTimestamp) && (state?.lastPollTimestamp > time_check_for_poll)) {
-		if (settings.trace) {
-			log.debug "generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
-			sendEvent name: "verboseTrace", value:
-				"generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+	} else {	
+			thermostatId = determine_tstat_id(thermostatId)
 		}
-		return
+    	
+	if (!bypassThrottling) {    
+		def poll_interval=3   // set a 3 min. poll interval to avoid unecessary load on ecobee servers
+		def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
+		if ((state?.lastPollTimestamp) && (state?.lastPollTimestamp > time_check_for_poll)) {
+			if (settings.trace) {
+				log.debug "generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+				sendEvent name: "verboseTrace", value:
+					"generateRemoteSensorEvents>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+			}
+			return
+		}            
+		if (!getThermostatRevision("","")) {
+    
+			// if there are no changes in the thermostat, runtime or interval revisions, values at ecobee haven't changed since last update
+			return
+		}
 	}
 	state.lastPollTimestamp = now()
     
-	if (!getThermostatRevision("","")) {
-    
-		// if there are no changes in the thermostat, runtime or interval revisions, values at ecobee haven't changed since last update
-		return
-	}
-    
 	getRemoteSensorUpdate(thermostatId)    
-/* Reset all remote sensor data values */
+    
+	/* Reset all remote sensor data values */
 	def remoteData = []
 	def remoteTempData = ""
 	def remoteHumData = ""
@@ -2931,7 +2933,7 @@ void generateRemoteSensorEvents(thermostatId,postData='false') {
 				}
 				continue            
 			}            
-			if (postData == 'true') {
+			if (postData) {
 				if (settings.trace) {
 					log.debug "generateRemoteSensorEvents>adding ${data.thermostatList[0].remoteSensors[i]} to remoteData"
 				}
