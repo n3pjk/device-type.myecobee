@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.2.6
+ *  Version 3.2.7
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -1466,6 +1466,7 @@ void setThermostatSettings(thermostatId,tstatSettings = []) {
 				sendEvent name: "verboseTrace", value:
 						"setThermostatSettings>done for ${thermostatId}"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"setThermostatSettings> error=${statusCode.toString()},message=${message} for ${thermostatId}"
 				sendEvent name: "verboseTrace", value: 
@@ -1595,6 +1596,7 @@ void setHoldExtraParams(thermostatId, coolingSetPoint, heatingSetPoint, fanMode,
 				sendEvent name: "verboseTrace", value:
 						"setHold>done for ${thermostatId}"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"setHold> error=${statusCode.toString()},message=${message} for ${thermostatId}"
 				sendEvent name: "verboseTrace", value:
@@ -1692,6 +1694,7 @@ void createVacation(thermostatId, vacationName, targetCoolTemp, targetHeatTemp,
 			sendEvent name: "verboseTrace", value:
 					"createVacation>done for ${thermostatId}"
 		} else {
+			state.exceptionCount = state.exceptionCount +1     
 			log.error 
 				"createVacation>error=${statusCode.toString()},message=${message} for ${thermostatId}"
 			sendEvent name: "verboseTrace", value: 
@@ -1762,6 +1765,7 @@ void deleteVacation(thermostatId, vacationName) {
 			sendEvent name: "verboseTrace", value:
 					"deleteVacation>done for ${thermostatId}"
 		} else {
+			state.exceptionCount = state.exceptionCount +1     
 			log.error "deleteVacation> error= ${statusCode.toString()},message=${message} for ${thermostatId}"
 			sendEvent name: "verboseTrace", value:
 				"deleteVacation>error ${statusCode.toString()},message=${message} for ${thermostatId}"
@@ -1835,6 +1839,7 @@ void resumeProgram(thermostatId=settings.thermostatId, resumeAllFlag=true) {
 			sendEvent name: "verboseTrace", value:
 					"resumeProgram>resume done for ${thermostatId}"
 		} else {
+			state.exceptionCount = state.exceptionCount +1     
 			log.error 
 				"resumeProgram>error=${statusCode.toString()},message=${message} for ${thermostatId}"
 			sendEvent name: "verboseTrace", value:
@@ -1902,6 +1907,7 @@ def getGroups(thermostatId) {
 				}
 			}
 		} else {
+			state.exceptionCount = state.exceptionCount +1     
 			log.error 
 				"getGroups>> error=${statusCode.toString()},message=${message} for ${thermostatId}" 
 			sendEvent name: "verboseTrace", value:
@@ -1995,6 +2001,7 @@ void updateGroup(groupRef, groupName, thermostatId, groupSettings = []) {
 				sendEvent name: "verboseTrace", value:
 						"updateGroup>done for groupName =${groupName}, ${thermostatId}"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"updateGroup> error=${statusCode.toString()},message=${message} for ${thermostatId}"
 				sendEvent name: "verboseTrace", value:
@@ -2037,6 +2044,7 @@ void deleteGroup(groupRef, groupName) {
 			sendEvent name: "verboseTrace", value:
 					"deleteGroup>done for groupName =${groupName},groupRef = ${groupRef}"
 		} else {
+			state.exceptionCount = state.exceptionCount +1     
 			log.error 
 				"deleteGroup> error= ${statusCode.toString()},message= ${message} for ${groupName},groupRef= ${groupRef}"
 			sendEvent name: "verboseTrace", value:
@@ -2169,6 +2177,7 @@ void setClimate(thermostatId, climateName, paramsMap=[]) {
 					sendEvent name: "verboseTrace", value:
 							"setClimate>done for thermostatId =${data.thermostatList[i].identifier},climateName =${climateName}"
 				} else {
+					state.exceptionCount = state.exceptionCount +1     
 					log.error 
 						"setClimate>error ${statusCode.toString()},message=${message} while setting climate ${climateName} for thermostatId =${data.thermostatList[i].identifier}"
 					sendEvent name: "verboseTrace", value:
@@ -2368,6 +2377,7 @@ void updateClimate(thermostatId, climateName, deleteClimateFlag,
 				sendEvent name: "verboseTrace", value:
 						"updateClimate>done for thermostatId =${thermostatId},climateName =${climateName}"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"updateClimate>error=${statusCode.toString()},message=${message} for thermostatId =${thermostatId},climateName =${climateName}"
 				sendEvent name: "verboseTrace", value:
@@ -2428,6 +2438,7 @@ void controlPlug(thermostatId, plugName, plugState, plugSettings = []) {
 				}
 				generateEvent(plugEvents)
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"controlPlug>error=${statusCode.toString()},message=${message} for thermostatId =${thermostatId},plugName =${plugName}"
 				sendEvent name: "verboseTrace", value:
@@ -2585,6 +2596,7 @@ void getReportData(thermostatId, startDateTime, endDateTime, startInterval, endI
 				sendEvent name: "verboseTrace", value:"getReportData>done for thermostatId ${thermostatId}"
         	        
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"getReportData> error=${statusCode.toString()},message=${message} for ${thermostatId}"
 				sendEvent name: "verboseTrace", value:
@@ -3053,6 +3065,7 @@ void getThermostatInfo(thermostatId=settings.thermostatId) {
 				sendEvent name: "verboseTrace", value:
 					"getTstatInfo>done for ${thermostatId}"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"getThermostatInfo> error=${statusCode.toString()},message=${message} for ${thermostatId}"
 				sendEvent name: "verboseTrace", value:
@@ -3102,6 +3115,7 @@ void getRemoteSensorUpdate(thermostatId=settings.thermostatId) {
 				sendEvent name: "verboseTrace", value:
 					"getRemoteSensorUpdate>done for ${thermostatId}"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error 
 					"getRemoteSensorUpdate> error=${statusCode.toString()},message=${message} for ${thermostatId}"
 				sendEvent name: "verboseTrace", value:
@@ -3198,6 +3212,7 @@ void getThermostatSummary(tstatType) {
 				sendEvent name: "verboseTrace", value:
 					"getTstatSummary>done"
 			} else {
+				state.exceptionCount = state.exceptionCount +1     
 				log.error
 					"getThermostatSummary> error=${statusCode.toString()},message=${message}"
 				sendEvent name: "verboseTrace", value:
