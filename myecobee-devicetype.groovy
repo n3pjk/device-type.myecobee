@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.3.1
+ *  Version 3.3.2
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -1211,8 +1211,8 @@ private void api(method, args, success = {}) {
 			login()
 			def exceptionCheck=device.currentValue("verboseTrace")
 			if (exceptionCheck.contains("exception")) {
-				log.error ("api>$exceptionCheck, not able to renew the refresh token, need to re-login to ecobee, run MyEcobeeInit....")         
-				sendEvent (name: "verboseTrace", value:"api>$exceptionCheck, not able to renew the refresh token, need to re-login to ecobee, run MyEcobeeInit....")         
+				log.error ("api>$exceptionCheck, not able to renew the refresh token; if recurrent exception, may need to re-login to ecobee via MyEcobeeInit....")         
+				sendEvent (name: "verboseTrace", value:"api>$exceptionCheck, not able to renew the refresh token;  if recurrent exception, may need to re-login to ecobee via MyEcobeeInit....")         
 			}
             
 		} else {
@@ -1311,9 +1311,9 @@ private void doRequest(uri, args, type, success) {
 		sendEvent name: "verboseTrace", value:
 			"doRequest>exception $e for " + params.uri
 		state.exceptionCount = state.exceptionCount +1 
-		// introduce a 1 second delay before re-attempting any other command                    
+		// introduce a 5 second delay before re-attempting any other command                    
 		def cmd= []           
-		cmd << "delay 1000"                    
+		cmd << "delay 5000"                    
 		cmd            
         
 	}
