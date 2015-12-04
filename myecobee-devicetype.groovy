@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.4
+ *  Version 3.4.1
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -2990,7 +2990,7 @@ void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=fal
 	if (data.remoteSensorData[0].remoteSensors) {
 		for (i in 0..data.remoteSensorData[0].remoteSensors.size() - 1) {
 			if (settings.trace) {
-				log.debug "generateRemoteSensorEvents>found sensor ${data.thermostatList[0].remoteSensors[i]} at (${i})"
+				log.debug "generateRemoteSensorEvents>found sensor ${data.remoteSensorData[0].remoteSensors[i]} at (${i})"
 			}
 			if ((data.remoteSensorData[0].remoteSensors[i]?.type != REMOTE_SENSOR_TYPE) &&
 			 (data.remoteSensorData[0].remoteSensors[i]?.type != REMOTE_THERMOSTAT_TYPE)) {
