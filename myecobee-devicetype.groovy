@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.3.2
+ *  Version 3.4
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -811,7 +811,7 @@ void setThisTstatClimate(climateName) {
 				sendEvent(name: "presence", value: "present")
 			}
 		}            
-		poll() // to refresh the values in the UI
+		refresh_thermostat(thermostatId) // to refresh the values in the UI
 	}
 }
 
@@ -820,32 +820,11 @@ def parse(String description) {
 
 }
 
-void poll() {
-	def tstatId,ecobeeType
+// thermostatId is single thermostatId (not a list)
+private def refresh_thermostat(thermostatId) {
+	def ecobeeType = determine_ecobee_type_or_location(tstatType)
     
-	def thermostatId= determine_tstat_id("") 	    
-
-
-	def poll_interval=3   // set a 3 min. poll interval to avoid unecessary load on ecobee servers
-	def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
-	if ((state?.lastPollTimestamp) && (state?.lastPollTimestamp > time_check_for_poll)) {
-		if (settings.trace) {
-			log.debug "poll>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
-			sendEvent name: "verboseTrace", value:
-				"poll>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
-		}
-		return
-	}
-	state.lastPollTimestamp = now()
-    
-	ecobeeType = determine_ecobee_type_or_location(ecobeeType)
-	if (!getThermostatRevision(ecobeeType,"")) {
-    
-		// if there are no changes in the thermostat, runtime or interval revisions, stop the polling as values at ecobee haven't changed since last poll()
-		return
-	}
 	getThermostatInfo(thermostatId)
-
 	String exceptionCheck = device.currentValue("verboseTrace").toString()
 	if ((exceptionCheck.contains("exception")) || (exceptionCheck.contains("error"))) {  
 	// check if there is any exception or an error reported in the verboseTrace associated to the device 
@@ -982,21 +961,21 @@ void poll() {
 		dataEvents.programEndTimeMsg ="Quicksave running"
 	}
 	generateEvent(dataEvents)
-	if (data.thermostatList[0].settings.hasHumidifier) {
+	if (data.thermostatList[0].settings.hasHumidifier=='true') {
 		dataEvents = [
 			humidifierMode: data.thermostatList[0].settings.humidifierMode,
 			humidifierLevel:data.thermostatList[0].settings.humidity
 		]
 		generateEvent(dataEvents)        
 	}
-	if (data.thermostatList[0].settings.hasDehumidifier) {
+	if (data.thermostatList[0].settings.hasDehumidifier=='true') {
 		dataEvents = [
 			dehumidifierMode: data.thermostatList[0].settings.dehumidifierMode,
 			dehumidifierLevel:data.thermostatList[0].settings.dehumidifierLevel
 		]            
 		generateEvent(dataEvents)                    
 	}
-	if ((data.thermostatList[0].settings.hasHrv) || (data.thermostatList[0].settings.hasErv)) {
+	if ((data.thermostatList[0].settings.hasHrv== 'true') || (data.thermostatList[0].settings.hasErv=='true')) {
 		dataEvents = [
 			ventilatorMinOnTime:data.thermostatList[0].settings.ventilatorMinOnTime.toString(),
 			ventilatorMode: data.thermostatList[0].settings.vent
@@ -1005,7 +984,47 @@ void poll() {
 	}
        
 	sendEvent name: "verboseTrace", value: "poll>done for thermostatId =${thermostatId}"
+}
+
+// refresh() has a different polling interval as it is called by the UI (contrary to poll).
+void refresh() {
+	def thermostatId= determine_tstat_id("") 	    
+	def poll_interval=0.5   // set a 30 sec. poll interval to avoid unecessary load on ecobee servers
+	def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
+	if ((state?.lastPollTimestamp) && (state?.lastPollTimestamp > time_check_for_poll)) {
+		if (settings.trace) {
+			log.debug "refresh>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+			sendEvent name: "verboseTrace", value:
+				"refresh>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+		}
+		return
+	}
+	state.lastPollTimestamp = now()
+	refresh_thermostat(thermostatId)
+}
+
+void poll() {
     
+	def thermostatId= determine_tstat_id("") 	    
+
+	def poll_interval=3   // set a 3 min. poll interval to avoid unecessary load on ecobee servers
+	def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
+	if ((state?.lastPollTimestamp) && (state?.lastPollTimestamp > time_check_for_poll)) {
+		if (settings.trace) {
+			log.debug "poll>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll}) < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+			sendEvent name: "verboseTrace", value:
+				"poll>thermostatId = ${thermostatId},time_check_for_poll (${time_check_for_poll} < state.lastPollTimestamp (${state.lastPollTimestamp}), not refreshing data..."
+		}
+		return
+	}
+	state.lastPollTimestamp = now()
+    
+	if (!getThermostatRevision("","")) {
+    
+		// if there are no changes in the thermostat, runtime or interval revisions, stop the polling as values at ecobee haven't changed since last poll()
+		return
+	}
+	refresh_thermostat(thermostatId)
 }
 
 private void generateEvent(Map results) {
@@ -1188,14 +1207,13 @@ private def getClimateList(thermostatId) {
 	return climateList
 }
 
-void refresh() {
-	poll()
-}
 
 void resumeThisTstat() {
+	def thermostatId= determine_tstat_id("") 	    
 	resumeProgram("") 
-	poll()
+	refresh_thermostat(thermostatId)
 }
+
 private void api(method, args, success = {}) {
 	def MAX_EXCEPTION_COUNT=25
 	String URI_ROOT = "${get_URI_ROOT()}/1"
@@ -2856,7 +2874,54 @@ private float calculate_report_stats(component, startInterval, endInterval, type
 	return total
 }
 
-// getThermostatInfo() should be called prior to calling generateRemoteSensorEvents() method to get the latest data
+// thermostatId may be a list of serial# separated by ",", no spaces (ex. '123456789012,123456789013') 
+//	if no thermostatId is provided, it is defaulted to the current thermostatId 
+void getRemoteSensorUpdate(thermostatId=settings.thermostatId) {
+	if (settings.trace) {
+		log.debug "getRemoteSensorUpdate> about to call build_body_request for thermostatId = ${thermostatId}..."
+	}
+	def bodyReq = build_body_request('remoteSensorUpdate',null,thermostatId,null)
+	if (settings.trace) {
+		log.debug "getRemoteSensorUpdate> about to call api with body = ${bodyReq} for thermostatId = ${thermostatId}..."
+	}
+	def statusCode=true
+	int j=0    
+	while ((statusCode) && (j++ <2)) { // retries once if api call fails
+		api('thermostatInfo', bodyReq) {resp ->
+			statusCode = resp.data.status.code
+			def message = resp.data.status.message
+			if (!statusCode) {
+				data?.remoteSensorData = resp.data.thermostatList
+				def thermostatName = data.remoteSensorData[0].name
+				if (data.remoteSensorData[0].remoteSensors) {
+					if (settings.trace) {
+						log.debug "getRemoteSensorUpdate>found remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+						sendEvent name: "verboseTrace", value:
+							"getRemoteSensorUpdate>found remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+					}                            
+				} else {
+					if (settings.trace) {
+						log.debug "getRemoteSensorUpdate>No remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+						sendEvent name: "verboseTrace", value:
+							"getRemoteSensorUpdate>No remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
+					}
+				}        
+				sendEvent name: "verboseTrace", value:
+					"getRemoteSensorUpdate>done for ${thermostatId}"
+			} else {
+				state.exceptionCount = state.exceptionCount +1     
+				log.error 
+					"getRemoteSensorUpdate> error=${statusCode.toString()},message=${message} for ${thermostatId}"
+				sendEvent name: "verboseTrace", value:
+					"getRemoteSensorUpdate>error=${statusCode},message=${message} for ${thermostatId}"
+				// introduce a 1 second delay before re-attempting any other command                    
+				def cmd= []           
+				cmd << "delay 1000"                    
+				cmd            
+			} /* end if statusCode */                 
+		} /* end api call */
+	} /* end while */
+}
 // thermostatId shall refer to a single thermostat to avoid processing too much data
 //	if no thermostatId is provided, it is defaulted to the current thermostatId 
 // postData may be true or false, by default the latter
@@ -2909,6 +2974,12 @@ void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=fal
 	state.lastPollTimestamp = now()
     
 	getRemoteSensorUpdate(thermostatId)    
+	String exceptionCheck = device.currentValue("verboseTrace").toString()
+	if ((exceptionCheck.contains("exception")) || (exceptionCheck.contains("error"))) {  
+	// check if there is any exception or an error reported in the verboseTrace associated to the device 
+		log.error "generateRemoteSensorEvents>>$exceptionCheck" 
+		return    
+	}
     
 	/* Reset all remote sensor data values */
 	def remoteData = []
@@ -2916,20 +2987,20 @@ void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=fal
 	def remoteHumData = ""
 	def remoteOccData = ""
     
-	if (data.thermostatList[0].remoteSensors) {
-		for (i in 0..data.thermostatList[0].remoteSensors.size() - 1) {
+	if (data.remoteSensorData[0].remoteSensors) {
+		for (i in 0..data.remoteSensorData[0].remoteSensors.size() - 1) {
 			if (settings.trace) {
 				log.debug "generateRemoteSensorEvents>found sensor ${data.thermostatList[0].remoteSensors[i]} at (${i})"
 			}
-			if ((data.thermostatList[0].remoteSensors[i]?.type != REMOTE_SENSOR_TYPE) &&
-			 (data.thermostatList[0].remoteSensors[i]?.type != REMOTE_THERMOSTAT_TYPE)) {
+			if ((data.remoteSensorData[0].remoteSensors[i]?.type != REMOTE_SENSOR_TYPE) &&
+			 (data.remoteSensorData[0].remoteSensors[i]?.type != REMOTE_THERMOSTAT_TYPE)) {
 				if (settings.trace) {
-					log.debug "generateRemoteSensorEvents>found sensor type ${data.thermostatList[0].remoteSensors[i].type} at (${i}, skipping it)"
+					log.debug "generateRemoteSensorEvents>found sensor type ${data.remoteSensorData[0].remoteSensors[i].type} at (${i}, skipping it)"
 				}
  				// not a remote sensor
  				continue
 			}
-			if (!data.thermostatList[0].remoteSensors[i].capability) {
+			if (!data.remoteSensorData[0].remoteSensors[i].capability) {
 				if (settings.trace) {
 					log.debug "generateRemoteSensorEvents>looping i=${i}, no capability values found..."
 				}
@@ -2937,37 +3008,37 @@ void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=fal
 			}            
 			if (postData) {
 				if (settings.trace) {
-					log.debug "generateRemoteSensorEvents>adding ${data.thermostatList[0].remoteSensors[i]} to remoteData"
+					log.debug "generateRemoteSensorEvents>adding ${data.remoteSensorData[0].remoteSensors[i]} to remoteData"
 				}
-				remoteData << data.thermostatList[0].remoteSensors[i]  // to be transformed into Json later
+				remoteData << data.remoteSensorData[0].remoteSensors[i]  // to be transformed into Json later
 			} 
-			for (j in 0..data.thermostatList[0].remoteSensors[i].capability.size()-1) {
+			for (j in 0..data.remoteSensorData[0].remoteSensors[i].capability.size()-1) {
 				if (settings.trace) {
-					log.debug "generateRemoteSensorEvents>looping i=${i},found ${data.thermostatList[0].remoteSensors[i].capability[j]} at j=${j}"
+					log.debug "generateRemoteSensorEvents>looping i=${i},found ${data.remoteSensorData[0].remoteSensors[i].capability[j]} at j=${j}"
 				}
-				if (data.thermostatList[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_TEMPERATURE) {
+				if (data.remoteSensorData[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_TEMPERATURE) {
 					// Divide the sensor temperature by 10 
-					value =(data.thermostatList[0].remoteSensors[i].capability[j].value.toFloat()/10).round(1)
- 					remoteTempData = remoteTempData + data.thermostatList[0].remoteSensors[i].id + "," +
-						data.thermostatList[0].remoteSensors[i].name + "," +
-						data.thermostatList[0].remoteSensors[i].capability[j].type + "," + value.toString() + ",,"
+					value =(data.remoteSensorData[0].remoteSensors[i].capability[j].value.toFloat()/10).round(1)
+ 					remoteTempData = remoteTempData + data.remoteSensorData[0].remoteSensors[i].id + "," +
+						data.remoteSensorData[0].remoteSensors[i].name + "," +
+						data.remoteSensorData[0].remoteSensors[i].capability[j].type + "," + value.toString() + ",,"
 					totalTemp = totalTemp + value
 					maxTemp = Math.max(value,maxTemp)
 					minTemp = (minTemp==null)? value: Math.min(value,minTemp)
 					nbTempSensorInUse++
-				} else if (data.thermostatList[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_HUMIDITY) {
-					remoteHumData = remoteHumData + data.thermostatList[0].remoteSensors[i].id + "," + 
-						data.thermostatList[0].remoteSensors[i].name + "," +
-						data.thermostatList[0].remoteSensors[i].capability[j].type + "," + data.thermostatList[0].remoteSensors[i].capability[j].value + ",,"
-					value =data.thermostatList[0].remoteSensors[i].capability[j].value.toFloat()
+				} else if (data.remoteSensorData[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_HUMIDITY) {
+					remoteHumData = remoteHumData + data.remoteSensorData[0].remoteSensors[i].id + "," + 
+						data.remoteSensorData[0].remoteSensors[i].name + "," +
+						data.remoteSensorData[0].remoteSensors[i].capability[j].type + "," + data.remoteSensorData[0].remoteSensors[i].capability[j].value + ",,"
+					value =data.remoteSensorData[0].remoteSensors[i].capability[j].value.toFloat()
 					totalHum = totalHum + value
 					maxHum = Math.max(value,maxHum)
 					minHum = (minHum==null)? value: Math.min(value,minHum)
 					nbHumSensorInUse++
-				} else if (data.thermostatList[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_OCCUPANCY) {
-					remoteOccData = remoteOccData + data.thermostatList[0].remoteSensors[i].id + "," + 
-						data.thermostatList[0].remoteSensors[i].name + "," +
-						data.thermostatList[0].remoteSensors[i].capability[j].type + "," + data.thermostatList[0].remoteSensors[i].capability[j].value + ",,"
+				} else if (data.remoteSensorData[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_OCCUPANCY) {
+					remoteOccData = remoteOccData + data.remoteSensorData[0].remoteSensors[i].id + "," + 
+						data.remoteSensorData[0].remoteSensors[i].name + "," +
+						data.remoteSensorData[0].remoteSensors[i].capability[j].type + "," + data.remoteSensorData[0].remoteSensors[i].capability[j].value + ",,"
 				} 
 				                        
 			} /* end for remoteSensor Capabilites */
@@ -3083,56 +3154,6 @@ void getThermostatInfo(thermostatId=settings.thermostatId) {
 	} /* end while */
 }
 
-
-// thermostatId may be a list of serial# separated by ",", no spaces (ex. '123456789012,123456789013') 
-//	if no thermostatId is provided, it is defaulted to the current thermostatId 
-void getRemoteSensorUpdate(thermostatId=settings.thermostatId) {
-	if (settings.trace) {
-		log.debug "getRemoteSensorUpdate> about to call build_body_request for thermostatId = ${thermostatId}..."
-	}
-	def bodyReq = build_body_request('remoteSensorUpdate',null,thermostatId,null)
-	if (settings.trace) {
-		log.debug "getRemoteSensorUpdate> about to call api with body = ${bodyReq} for thermostatId = ${thermostatId}..."
-	}
-	def statusCode=true
-	int j=0    
-	while ((statusCode) && (j++ <2)) { // retries once if api call fails
-		api('thermostatInfo', bodyReq) {resp ->
-			statusCode = resp.data.status.code
-			def message = resp.data.status.message
-			if (!statusCode) {
-				data?.thermostatList = resp.data.thermostatList
-				def thermostatName = data.thermostatList[0].name
-				if (data.thermostatList[0].remoteSensors) {
-					if (settings.trace) {
-						log.debug "getRemoteSensorUpdate>found remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
-						sendEvent name: "verboseTrace", value:
-							"getRemoteSensorUpdate>found remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
-					}                            
-				} else {
-					if (settings.trace) {
-						log.debug "getRemoteSensorUpdate>No remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
-						sendEvent name: "verboseTrace", value:
-							"getRemoteSensorUpdate>No remote sensor values for thermostatId=${thermostatId},name=${thermostatName}"
-					}
-				}        
-				sendEvent name: "verboseTrace", value:
-					"getRemoteSensorUpdate>done for ${thermostatId}"
-			} else {
-				state.exceptionCount = state.exceptionCount +1     
-				log.error 
-					"getRemoteSensorUpdate> error=${statusCode.toString()},message=${message} for ${thermostatId}"
-				sendEvent name: "verboseTrace", value:
-					"getRemoteSensorUpdate>error=${statusCode},message=${message} for ${thermostatId}"
-				// introduce a 1 second delay before re-attempting any other command                    
-				def cmd= []           
-				cmd << "delay 1000"                    
-				cmd            
-			} /* end if statusCode */                 
-		} /* end api call */
-	} /* end while */
-}
-
 // tstatType =managementSet or registered (no spaces). 
 // May also be set to a specific locationSet (ex./Toronto/Campus/BuildingA)
 // thermostatId may be a single thermostat only
@@ -3229,7 +3250,7 @@ void getThermostatSummary(tstatType) {
 		}  /* end api call */              
 	} /* end while */
 }
-// poll() or getThermostatInfo() must be called prior to calling the getModelNumber() method 
+// poll(), refresh() or getThermostatInfo() must be called prior to calling the getModelNumber() method 
 // Return thermostat's current Model Number */
 def getModelNumber() {
 
