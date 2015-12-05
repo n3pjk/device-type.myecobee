@@ -1,8 +1,8 @@
 /***
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
- *  linkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.4.1
+ *  LinkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
+ *  Version 3.4.2
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -454,7 +454,7 @@ metadata {
         
 		standardTile("refresh", "device.thermostatMode", inactiveLabel: false,
 			decoration: "flat",width: 2, height: 2) {
-			state "default", action: "polling.poll", icon: "st.secondary.refresh"
+			state "default", action: "refresh", icon: "st.secondary.refresh"
 		}
 		main "summary"
 		details("summary", "name", "groups", "mode",  "switchProgram", "resProgram", "fanMode",
@@ -822,7 +822,6 @@ def parse(String description) {
 
 // thermostatId is single thermostatId (not a list)
 private def refresh_thermostat(thermostatId) {
-	def ecobeeType = determine_ecobee_type_or_location(tstatType)
     
 	getThermostatInfo(thermostatId)
 	String exceptionCheck = device.currentValue("verboseTrace").toString()
@@ -831,6 +830,7 @@ private def refresh_thermostat(thermostatId) {
 		log.error "poll>$exceptionCheck" 
 		return    
 	}
+	def ecobeeType = determine_ecobee_type_or_location(tstatType)
 
 	// determine if there is an event running
     
@@ -1017,13 +1017,12 @@ void poll() {
 		}
 		return
 	}
-	state.lastPollTimestamp = now()
-    
 	if (!getThermostatRevision("","")) {
     
 		// if there are no changes in the thermostat, runtime or interval revisions, stop the polling as values at ecobee haven't changed since last poll()
 		return
 	}
+	state.lastPollTimestamp = now()
 	refresh_thermostat(thermostatId)
 }
 
@@ -3320,8 +3319,8 @@ private def refresh_tokens() {
 		refreshParentTokens()
 	}   
 	if (settings.trace) {
-		float authExpTimeInMin= (authexptime/60).toFloat().round(1)
-		log.debug "refresh_tokens> expires in ${authExpTimeInMin} minutes"
+		double authExpTimeInMin= (authexptime/60000).toDouble().round(1)
+		log.debug "refresh_tokens> expires in ${authExpTimeInMin.toString()} minutes"
 		log.debug "refresh_tokens> data_auth.expires_in in time = ${authexptime}"
 		sendEvent name: "verboseTrace", value:
 			"refresh_tokens>expire in ${authExpTimeInMin} minutes"
