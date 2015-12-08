@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  LinkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.4.4
+ *  Version 3.4.5
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -1225,12 +1225,12 @@ private void api(method, args, success = {}) {
 			log.debug "api>need to refresh tokens"
 		}
 		if (!refresh_tokens()) {
-			login()
 			def exceptionCheck=device.currentValue("verboseTrace")
-			if (exceptionCheck.contains("exception")) {
+			if ((exceptionCheck) && (state.exceptionCount >= MAX_EXCEPTION_COUNT) && (exceptionCheck.contains("Unauthorized"))) {
 				log.error ("api>$exceptionCheck, not able to renew the refresh token; if recurrent exception, may need to re-login to ecobee via MyEcobeeInit....")         
 				sendEvent (name: "verboseTrace", value:"api>$exceptionCheck, not able to renew the refresh token;  if recurrent exception, may need to re-login to ecobee via MyEcobeeInit....")         
 			}
+			login()
             
 		} else {
         
@@ -1238,14 +1238,6 @@ private void api(method, args, success = {}) {
 			state.exceptionCount=0
 		}            
 	}
-	if (state.exceptionCount >= MAX_EXCEPTION_COUNT) {
-
-		log.error ("api>error: found a high number of exceptions (${state.exceptionCount}), will try to refresh tokens, it it fails, you should run MyEcobeeInit and re-login to ecobee....")
-		sendEvent (name: "verboseTrace", 
-			value: "api>error: found a high number of exceptions (${state.exceptionCount}) , will try to refresh tokens, it it fails, you should run MyEcobeeInit and re-login to ecobee....")         
-		refresh_tokens()        
-		state.exceptionCount=0
-	}    
 	def args_encoded = java.net.URLEncoder.encode(args.toString(), "UTF-8")
 	def methods = [
 		'thermostatSummary': 
@@ -1284,6 +1276,14 @@ private void api(method, args, success = {}) {
 			"api> about to call doRequest with (unencoded) args = ${args}"
 	}
 	doRequest(request.uri, args_encoded, request.type, success)
+    
+	def exceptionCheck=device.currentValue("verboseTrace")
+	if ((state.exceptionCount >= MAX_EXCEPTION_COUNT) && ((exceptionCheck) && (exceptionCheck.contains("exception")))) {
+
+		log.error ("api>error: found a high number of exceptions (${state.exceptionCount}), last exceptionCheck=${exceptionCheck}")
+		sendEvent (name: "verboseTrace", 
+			value: "api>error: found a high number of exceptions (${state.exceptionCount}), last exceptionCheck=${exceptionCheck}")         
+	}    
 }
 
 // Need to be authenticated in before this is called. So don't call this. Call api.
@@ -1314,6 +1314,7 @@ private void doRequest(uri, args, type, success) {
 		}
 		/* when success, reset the exception counter */
 		state.exceptionCount=0
+		sendEvent name: "verboseTrace", value: "doRequest>done with ${type}"
 
 	} catch (java.net.UnknownHostException e) {
 		log.error "doRequest> Unknown host - check the URL " + params.uri
