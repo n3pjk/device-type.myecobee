@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  LinkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.4.6
+ *  Version 3.4.7
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -1117,7 +1117,7 @@ private def getAlerts() {
 	if (data.thermostatList[0].alerts.size() > 0) {
 		alerts = 'Alert(s) '
 		for (i in 0..data.thermostatList[0].alerts.size() - 1) {
-			alerts = (i > 0) ? '\n' + ' ' + alerts + data.thermostatList[0].alerts[i].notificationType :
+			alerts = (i > 0) ? '\n' + ' ' + alerts + ',' + data.thermostatList[0].alerts[i].notificationType :
 				alerts +
 				data.thermostatList[0].alerts[i].notificationType
 		}
