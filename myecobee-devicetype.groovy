@@ -1,5 +1,5 @@
 /***
- *  My Ecobee Device
+ *  My Ecobee Device (Lite)
  *  Copyright 2014 Yves Racine
  *  LinkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
  *  Version 3.4.7
@@ -71,6 +71,7 @@ metadata {
 		attribute "programCoolTempDisplay", "string"
 		attribute "programHeatTempDisplay", "string"
 		attribute "programEndTimeMsg", "string"
+/*        
 		attribute "weatherDateTime", "string"
 		attribute "weatherSymbol", "string"
 		attribute "weatherStation", "string"
@@ -85,6 +86,7 @@ metadata {
 		attribute "weatherTempLow", "string"
 		attribute "weatherTempHighDisplay", "string"
 		attribute "weatherTempLowDisplay", "string"
+*/        
 		attribute "plugName", "string"
 		attribute "plugState", "string"
 		attribute "plugSettings", "string"
@@ -239,10 +241,12 @@ metadata {
 			height: 2, decoration: "flat") {
 			state "default", label: '${currentValue}\n'
 		}
+/*       
 		valueTile("groups", "device.groups", inactiveLabel: false, width: 2, 
 			height: 2, decoration: "flat") {
 			state "default", label: '${currentValue}'
 		}
+*/        
 		standardTile("mode", "device.thermostatMode", inactiveLabel: false,
 			decoration: "flat", width: 2, height: 2,) {
 			state "heat", label: '${name}', action: "thermostat.off", 
@@ -384,6 +388,7 @@ metadata {
 			state "default", label: 'ResumeProg', action: "resumeThisTstat", 
             		icon: "st.Office.office7", backgroundColor: "#ffffff"
 		}
+/*        
 		// Weather Tiles
 		standardTile("weatherIcon", "device.weatherSymbol", inactiveLabel: false, width: 2, height: 2,
 			decoration: "flat") {
@@ -451,22 +456,23 @@ metadata {
 			height: 2, decoration: "flat") {
 			state "default", label: 'PoP\n${currentValue}%', unit: "%"
 		}
-        
+*/        
 		standardTile("refresh", "device.thermostatMode", inactiveLabel: false,
 			decoration: "flat",width: 2, height: 2) {
 			state "default", action: "refresh", icon: "st.secondary.refresh"
 		}
 		main "summary"
-		details("summary", "name","humidity",
-//        	"groups",
-			"mode",  "switchProgram", "resProgram", "fanMode",
+//		details("summary", "name", "groups", "mode",  "switchProgram", "resProgram", "fanMode",
+		details("summary", "name", "humidity", "mode",  "switchProgram", "resProgram", "fanMode",
  			"heatLevelUp", "coolLevelUp", "heatingSetpoint", "coolingSetpoint", "heatLevelDown", "coolLevelDown",
- 			 "programEndTimeMsg", "alerts","weatherDateTime", "weatherConditions",
-			"fanMinOnTime", "programScheduleName", "programType", "programCoolTemp",
+ 			 "programEndTimeMsg", "alerts",  // "weatherDateTime", "weatherConditions",
+			,"fanMinOnTime", "programScheduleName", "programType", "programCoolTemp",
 			"programHeatTemp",             
+/*            
 			"weatherIcon", "weatherTemperature", "weatherRelativeHumidity", "weatherTempHigh",
 			"weatherTempLow", "weatherPressure", "weatherWindDirection",
 			"weatherWindSpeed", "weatherPop", 
+*/            
 			"refresh"
 		)
 	}
@@ -929,6 +935,7 @@ private def refresh_thermostat(thermostatId) {
 			data.thermostatList[0].settings.fanMinOnTime.toString(),
 		programFanMode: (data.thermostatList[0].settings.hvacMode == 'cool')? currentClimate.coolFan : currentClimate.heatFan,
 		programNameForUI: progDisplayName,
+/*        
 		weatherStation:data.thermostatList[0].weather.weatherStation,
 		weatherSymbol:data.thermostatList[0].weather.forecasts[0].weatherSymbol.toString(),
 		weatherTemperature:data.thermostatList[0].weather.forecasts[0].temperature,
@@ -946,6 +953,7 @@ private def refresh_thermostat(thermostatId) {
 		weatherRelativeHumidity:data.thermostatList[0].weather.forecasts[0].relativeHumidity,
 		weatherWindDirection:data.thermostatList[0].weather.forecasts[0].windDirection + " Winds",
 		weatherPop:data.thermostatList[0].weather.forecasts[0].pop.toString(),        
+*/        
 		programCoolTemp:(currentClimate.coolTemp / 10),										// divided by 10 for display
 		programHeatTemp:(currentClimate.heatTemp / 10),
 		programCoolTempDisplay:(currentClimate.coolTemp / 10),								// divided by 10 for display
@@ -1373,10 +1381,11 @@ private def build_body_request(method, tstatType="registered", thermostatId, tst
 			includeSettings: 'true',
 			includeRuntime: 'true',
 			includeProgram: 'true',           
-			includeWeather: 'true',            
+//			includeWeather: 'true',            
 			includeAlerts: 'true',
 			includeEvents: 'true',
-			includeEquipmentStatus: 'true'
+			includeEquipmentStatus: 'true',
+			includeSensors: 'true'
 			]
 		]
 		selectionJson = new groovy.json.JsonBuilder(selection)
@@ -2954,8 +2963,8 @@ void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=fal
 		}
 	} else {	
 			thermostatId = determine_tstat_id(thermostatId)
-		}
-    	
+	}
+/*    	
 	if (!bypassThrottling) {    
 		def poll_interval=5   // set a 5 min. poll interval to avoid unecessary load on ecobee servers
 		def time_check_for_poll = (now() - (poll_interval * 60 * 1000))
@@ -2982,78 +2991,81 @@ void generateRemoteSensorEvents(thermostatId,postData=false,bypassThrottling=fal
 		log.error "generateRemoteSensorEvents>>$exceptionCheck" 
 		return    
 	}
-    
+ */
+ 
 	/* Reset all remote sensor data values */
 	def remoteData = []
 	def remoteTempData = ""
 	def remoteHumData = ""
 	def remoteOccData = ""
-    
-	if (data.remoteSensorData[0].remoteSensors) {
-		for (i in 0..data.remoteSensorData[0].remoteSensors.size() - 1) {
+
+
+	if (data.thermostatList[0].remoteSensors) {
+		for (i in 0..data.thermostatList[0].remoteSensors.size() - 1) {
 			if (settings.trace) {
-				log.debug "generateRemoteSensorEvents>found sensor ${data.remoteSensorData[0].remoteSensors[i]} at (${i})"
+				log.debug "generateRemoteSensorEvents>found sensor ${data.thermostatList[0].remoteSensors[i]} at (${i})"
 			}
-			if ((data.remoteSensorData[0].remoteSensors[i]?.type != REMOTE_SENSOR_TYPE) &&
-			 (data.remoteSensorData[0].remoteSensors[i]?.type != REMOTE_THERMOSTAT_TYPE)) {
+			if ((data.thermostatList[0].remoteSensors[i]?.type != REMOTE_SENSOR_TYPE) &&
+			 (data.thermostatList[0].remoteSensors[i]?.type != REMOTE_THERMOSTAT_TYPE)) {
 				if (settings.trace) {
-					log.debug "generateRemoteSensorEvents>found sensor type ${data.remoteSensorData[0].remoteSensors[i].type} at (${i}, skipping it)"
+					log.debug "generateRemoteSensorEvents>found sensor type ${data.thermostatList[0].remoteSensors[i].type} at (${i}, skipping it)"
 				}
  				// not a remote sensor
  				continue
 			}
-			if (!data.remoteSensorData[0].remoteSensors[i].capability) {
+			if (!data.thermostatList[0].remoteSensors[i].capability) {
 				if (settings.trace) {
 					log.debug "generateRemoteSensorEvents>looping i=${i}, no capability values found..."
 				}
 				continue            
 			}            
-			if (postData) {
+			if (postData == 'true') {
 				if (settings.trace) {
-					log.debug "generateRemoteSensorEvents>adding ${data.remoteSensorData[0].remoteSensors[i]} to remoteData"
+					log.debug "generateRemoteSensorEvents>adding ${data.thermostatList[0].remoteSensors[i]} to remoteData"
 				}
-				remoteData << data.remoteSensorData[0].remoteSensors[i]  // to be transformed into Json later
+				remoteData << data.thermostatList[0].remoteSensors[i]  // to be transformed into Json later
 			} 
-			for (j in 0..data.remoteSensorData[0].remoteSensors[i].capability.size()-1) {
+			for (j in 0..data.thermostatList[0].remoteSensors[i].capability.size()-1) {
 				if (settings.trace) {
-					log.debug "generateRemoteSensorEvents>looping i=${i},found ${data.remoteSensorData[0].remoteSensors[i].capability[j]} at j=${j}"
+					log.debug "generateRemoteSensorEvents>looping i=${i},found ${data.thermostatList[0].remoteSensors[i].capability[j]} at j=${j}"
 				}
-				if (data.remoteSensorData[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_TEMPERATURE) {
-					if (!data.remoteSensorData[0].remoteSensors[i].capability[j].value.isInteger()) {
+				if (data.thermostatList[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_TEMPERATURE) {
+					if (!data.remoteSensorData[0].thermostatList[i].capability[j].value.isInteger()) {
 						log.debug "generateRemoteSensorEvents>looping i=${i},j=${j}; found temp value, not valid integer: ${data.remoteSensorData[0].remoteSensors[i].capability[j].value}"
 						continue
 					}                    
 					// Divide the sensor temperature by 10 
-					value =(data.remoteSensorData[0].remoteSensors[i].capability[j].value.toFloat()/10).round(1)
- 					remoteTempData = remoteTempData + data.remoteSensorData[0].remoteSensors[i].id + "," +
-						data.remoteSensorData[0].remoteSensors[i].name + "," +
-						data.remoteSensorData[0].remoteSensors[i].capability[j].type + "," + value.toString() + ",,"
+					value =(data.thermostatList[0].remoteSensors[i].capability[j].value.toFloat()/10).round(1)
+ 					remoteTempData = remoteTempData + data.thermostatList[0].remoteSensors[i].id + "," +
+						data.thermostatList[0].remoteSensors[i].name + "," +
+						data.thermostatList[0].remoteSensors[i].capability[j].type + "," + value.toString() + ",,"
 					totalTemp = totalTemp + value
 					maxTemp = Math.max(value,maxTemp)
 					minTemp = (minTemp==null)? value: Math.min(value,minTemp)
 					nbTempSensorInUse++
-				} else if (data.remoteSensorData[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_HUMIDITY) {
-					if (!data.remoteSensorData[0].remoteSensors[i].capability[j].value.isInteger()) {
+				} else if (data.thermostatList[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_HUMIDITY) {
+					if (!data.thermostatList[0].remoteSensors[i].capability[j].value.isInteger()) {
 						log.debug "generateRemoteSensorEvents>looping i=${i},j=${j}; found hum value, not valid integer: ${data.remoteSensorData[0].remoteSensors[i].capability[j].value}"
 						continue
 					}                    
-					remoteHumData = remoteHumData + data.remoteSensorData[0].remoteSensors[i].id + "," + 
-						data.remoteSensorData[0].remoteSensors[i].name + "," +
-						data.remoteSensorData[0].remoteSensors[i].capability[j].type + "," + data.remoteSensorData[0].remoteSensors[i].capability[j].value + ",,"
-					value =data.remoteSensorData[0].remoteSensors[i].capability[j].value.toFloat()
+					remoteHumData = remoteHumData + data.thermostatList[0].remoteSensors[i].id + "," + 
+						data.thermostatList[0].remoteSensors[i].name + "," +
+						data.thermostatList[0].remoteSensors[i].capability[j].type + "," + data.thermostatList[0].remoteSensors[i].capability[j].value + ",,"
+					value =data.thermostatList[0].remoteSensors[i].capability[j].value.toFloat()
 					totalHum = totalHum + value
 					maxHum = Math.max(value,maxHum)
 					minHum = (minHum==null)? value: Math.min(value,minHum)
 					nbHumSensorInUse++
-				} else if (data.remoteSensorData[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_OCCUPANCY) {
-					remoteOccData = remoteOccData + data.remoteSensorData[0].remoteSensors[i].id + "," + 
-						data.remoteSensorData[0].remoteSensors[i].name + "," +
-						data.remoteSensorData[0].remoteSensors[i].capability[j].type + "," + data.remoteSensorData[0].remoteSensors[i].capability[j].value + ",,"
+				} else if (data.thermostatList[0].remoteSensors[i].capability[j].type == REMOTE_SENSOR_OCCUPANCY) {
+					remoteOccData = remoteOccData + data.thermostatList[0].remoteSensors[i].id + "," + 
+						data.thermostatList[0].remoteSensors[i].name + "," +
+						data.thermostatList[0].remoteSensors[i].capability[j].type + "," + data.thermostatList[0].remoteSensors[i].capability[j].value + ",,"
 				} 
 				                        
 			} /* end for remoteSensor Capabilites */
 		} /* end for remoteSensor data */
 	}                        
+
 	if (nbTempSensorInUse >0) {
 		avgTemp = (totalTemp / nbTempSensorInUse).round(1)
 		if (settings.trace) {
@@ -3113,12 +3125,14 @@ void getThermostatInfo(thermostatId=settings.thermostatId) {
 					.desiredCool / 10
 				data.thermostatList[0].runtime.desiredHeat = data.thermostatList[0].runtime
 					.desiredHeat / 10
+/*                    
 				data.thermostatList[0].weather.forecasts[0].temperature = data.thermostatList[
 					0].weather.forecasts[0].temperature / 10
 				data.thermostatList[0].weather.forecasts[0].tempLow = data.thermostatList[
 					0].weather.forecasts[0].tempLow / 10
 				data.thermostatList[0].weather.forecasts[0].tempHigh = data.thermostatList[
 					0].weather.forecasts[0].tempHigh / 10
+*/                    
 				data.thermostatList[0].settings.quickSaveSetBack = data.thermostatList[0].settings
 					.quickSaveSetBack / 10
 				data.thermostatList[0].settings.quickSaveSetForward = data.thermostatList[
@@ -3521,7 +3535,7 @@ private def isLoggedIn() {
 	return true
 }
 private def isTokenExpired() {
-	def buffer_time_expiration=25   // set a 25 min. buffer time before token expiration to avoid auth_err 
+	def buffer_time_expiration=15   // set a 15 min. buffer time before token expiration to avoid auth_err 
 	def time_check_for_exp = now() + (buffer_time_expiration * 60 * 1000);
 	if (settings.trace) {
 		log.debug "isTokenExpired> check expires_in: ${data.auth.authexptime} > time check for exp: ${time_check_for_exp}"
