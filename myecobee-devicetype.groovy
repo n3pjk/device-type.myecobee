@@ -2,7 +2,7 @@
  *  My Ecobee Device
  *  Copyright 2014 Yves Racine
  *  LinkedIn profile: ca.linkedin.com/pub/yves-racine-m-sc-a/0/406/4b/
- *  Version 3.4.5
+ *  Version 3.4.6
  *  Refer to readme file for installation instructions.
  *
  *  Developer retains all right, title, copyright, and interest, including all copyright, patent rights,
@@ -457,10 +457,12 @@ metadata {
 			state "default", action: "refresh", icon: "st.secondary.refresh"
 		}
 		main "summary"
-		details("summary", "name", "groups", "mode",  "switchProgram", "resProgram", "fanMode",
+		details("summary", "name","humidity",
+//        	"groups",
+			"mode",  "switchProgram", "resProgram", "fanMode",
  			"heatLevelUp", "coolLevelUp", "heatingSetpoint", "coolingSetpoint", "heatLevelDown", "coolLevelDown",
  			 "programEndTimeMsg", "alerts","weatherDateTime", "weatherConditions",
-			"humidity","fanMinOnTime", "programScheduleName", "programType", "programCoolTemp",
+			"fanMinOnTime", "programScheduleName", "programType", "programCoolTemp",
 			"programHeatTemp",             
 			"weatherIcon", "weatherTemperature", "weatherRelativeHumidity", "weatherTempHigh",
 			"weatherTempLow", "weatherPressure", "weatherWindDirection",
@@ -949,7 +951,7 @@ private def refresh_thermostat(thermostatId) {
 		programCoolTempDisplay:(currentClimate.coolTemp / 10),								// divided by 10 for display
 		programHeatTempDisplay:(currentClimate.heatTemp / 10),
 		alerts: getAlerts(),
-		groups: (ecobeeType.toUpperCase() == 'REGISTERED')? getThermostatGroups(thermostatId) : 'No groups',
+//		groups: (ecobeeType.toUpperCase() == 'REGISTERED')? getThermostatGroups(thermostatId) : 'No groups',
 		climateList: getClimateList(),
 		presence: (currentClimateTemplate.toUpperCase()!='AWAY')? "present":"not present",
 		heatStages:data.thermostatList[0].settings.heatStages.toString(),
